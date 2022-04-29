@@ -12,16 +12,16 @@ def hover(button, c1='#343434'):
 class gui:
     def __init__(self):
 
-        self.l = ['', '', '','','']
+        self.l = ['',0, False, '', 0]
         lb = []
         self.f = True
-        self.op = self.e= False
+        self.op = self.sign = self.e = False
 
         root = Tk()
         root.title("Calculator")
         root.minsize(400, 600)
 
-        # to dislpay the window int the center of the screen
+        # to display the window int the center of the screen
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
         x = int(screen_width / 2 - 400 / 2)
@@ -142,27 +142,39 @@ class gui:
         self.t = StringVar()
         entry = Label(tf, textvariable=self.t, font=('Helvetica', 50, 'bold'), bg='#232323', fg='white')
         entry.pack(side='right', pady=10, padx=10)
-        self.t.set(' ')
+        self.t.set(0)
 
         root.mainloop()
 
     def compute(self):
         # FUNCTION TO COMPUTE RESULT
         exp = s = ''
-        r = lambda x, y: 1 if y == 0 else x * r(x, y - 1)
-        result = {
-            '^': lambda x, y: r(x, y),
-            'x': lambda x, y: x * y,
-            '+': lambda x, y: x + y,
-            '-': lambda x, y: x - y,
-            '/': lambda x, y: x / y,
-            '%': lambda x, y: x % y
-        }
         try:
-            final = result[self.l[1]](self.l[0], self.l[2])
+            r = lambda x, y: 1 if y == 0 else x * r(x, y - 1)
+            result = {
+                '^': lambda x, y: r(x, y),
+                'x': lambda x, y: x * y,
+                '+': lambda x, y: x + y,
+                '-': lambda x, y: x - y,
+                '/': lambda x, y: x / y,
+                '%': lambda x, y: x % y
+            }
+            x, y = self.l[1], self.l[4]
+            if self.l[0]: x = -x
+            if self.l[3]: y = -y
+
+            final = str(result[self.l[2]](x, y))
+            if final.__len__()>100:
+                final=final[:6]+'e'+str(final.__len__()-6)
+            else:
+                self.t.set('long value')
+            print(result[self.l[2]](x, y))
         except ZeroDivisionError:
-            self.clear()
-            messagebox.showinfo("Error", "Division by Zero")
+            self.t.set(self.l[2]+' by 0')
+            self.clear('x')
+
+        except RecursionError:
+            self.t.set('long value')
         else:
             self.t.set(final)
             for i in self.l:
@@ -172,38 +184,58 @@ class gui:
 
     def clear(self, n=''):
         # FUNCTION TO CLEAR EXPRESSION
-        self.l = ['', '', '','','']
+        self.l = ['',0, False, '', 0]
         self.f = True
-        self.op = False
+        self.op = self.sign = self.e = False
         if n != 'x':
             self.s.set('')
             self.t.set("0")
 
     def press(self, n, w):
-        exp = ''
+        exp=' '
         if w == 'n' and self.f:
-            self.l[0] = str(self.l[0])
-            self.l[0] += str(n)
-            self.l[0] = int(self.l[0])
-            for i in self.l:
-                exp += str(i)
+            n1 = str(self.l[1])
+            n1 += str(n)
+            self.l[1] = int(n1)
+            print(self.l)
             self.op = True
-            self.t.set(exp)
+            self.t.set(self.l[0]+n1)
+
+        elif w == 'o' and self.f and not self.op:
+            if n in ['-','+']:
+                if n == '-':
+                    self.l[0] = '-'
+                elif self.l[0]:
+                    self.l[0] = ''
 
         elif w == 'o' and self.op:
-            if self.l[1] and n in ['-','+']:
-                self.l[]
-            self.l[1] = n
-            self.f = False
-            for i in self.l:
-                exp += (str(i) + ' ')
-            self.s.set(exp)
+            if self.sign:
+                if n in ['-', '+']:
+                    if n == '-':
+                        self.l[3] = '-'
+                    elif self.l[3]:
+                        self.l[3] = ''
+                    for i in range(4):
+                        print(self.l[i])
+                        exp += (" " + str(self.l[i]))
+                    self.s.set(exp)
+                    self.sign = True
+
+            if not self.sign:
+                self.sign = True
+                self.l[2] = n
+                self.f = False
+                for i in range(4):
+                    print(self.l[i])
+                    exp += (" "+str(self.l[i]))
+                self.s.set(exp)
 
         elif w == 'n' and not self.f:
-            self.l[2] = str(self.l[2])
-            self.l[2] += str(n)
-            self.l[2] = int(self.l[2])
-            self.t.set(self.l[2])
+            n2 = str(self.l[4])
+            n2 += str(n)
+            self.l[4] = int(n2)
+            print(self.l)
+            self.t.set(self.l[4])
             self.e = True
             self.op = False
         else:
