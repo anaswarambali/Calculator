@@ -197,7 +197,6 @@ class gui:
             n1 = str(self.l[1])
             n1 += str(n)
             self.l[1] = int(n1)
-            print(self.l)
             self.op = True
             self.t.set(self.l[0]+n1)
 
@@ -216,7 +215,6 @@ class gui:
                     elif self.l[3]:
                         self.l[3] = ''
                     for i in range(4):
-                        print(self.l[i])
                         exp += (" " + str(self.l[i]))
                     self.s.set(exp)
                     self.sign = True
@@ -226,7 +224,6 @@ class gui:
                 self.l[2] = n
                 self.f = False
                 for i in range(4):
-                    print(self.l[i])
                     exp += (" "+str(self.l[i]))
                 self.s.set(exp)
 
@@ -234,7 +231,6 @@ class gui:
             n2 = str(self.l[4])
             n2 += str(n)
             self.l[4] = int(n2)
-            print(self.l)
             self.t.set(self.l[4])
             self.e = True
             self.op = False
